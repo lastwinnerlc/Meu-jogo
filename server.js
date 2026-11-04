@@ -75,8 +75,11 @@ http.createServer((req,res)=>{const u=new URL(req.url,'http://x');
  if(u.pathname=='/rpc'&&req.method=='POST')return body(req,b=>rpc(b,res));
  if(u.pathname=='/admin/api'&&req.method=='POST')return body(req,b=>admin(b,res,req.headers['x-admin']));
  if(u.pathname=='/admin'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});return res.end(ADMIN_HTML)}
- if(u.pathname=='/health'){res.writeHead(200,cors);return res.end('ok')}
- if(u.pathname=='/'||u.pathname=='/index.html'){fs.readFile(path.join(__dirname,'public','index.html'),'utf8',(e,h)=>{if(e){res.writeHead(500);return res.end('index.html não encontrado')}
-  const proto=(req.headers['x-forwarded-proto']||'http').split(',')[0],origin=proto+'://'+req.headers.host;
+ if(u.pathname=='/'||u.pathname=='/index.html'){
+  res.writeHead(200,{'Content-Type':'text/html'});
+  return fs.createReadStream('./index.html').pipe(res);
+ }
+                              
+ const proto=(req.headers['x-forwarded-proto']||'http').split(',')[0],origin=proto+'://'+req.headers.host;
   res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-cache'});res.end(h.replace('__LW_SERVER__',origin))});return}
  res.writeHead(404);res.end('404')}).listen(PORT,()=>console.log('Last Winner LC online na porta '+PORT+(ADMIN?'':' (ATENÇÃO: defina ADMIN_KEY)')));
