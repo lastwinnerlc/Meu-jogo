@@ -64,17 +64,26 @@ $('m').innerHTML='<h3>Mensagens de suporte</h3>'+(t.t.map(x=>'<div class=r><b>'+
 '<h3>Jogadores</h3>'+(u.u.map(x=>'<div class=r><b>'+esc(x.n)+'</b> ID '+esc(x.pid)+' · nível '+(x.lv||1)+' · abates '+(x.k||0)+'<br><button onclick="gr(\\''+x.uid+'\\')">Dar presente</button></div>').join('')||'<i>Nenhum</i>')+'<div id=th></div>'}
 async function op(uid){const d=(await api({op:'thread',uid})).d;$('th').innerHTML='<h3>Conversa</h3>'+(d.msgs||[]).map(x=>'<div class=r><span class=s>'+(x.f=='s'?'Suporte':'Jogador')+':</span> '+esc(x.x)+'</div>').join('')+'<input id=tx style="width:70%" placeholder="Resposta"><button onclick="rp(\\''+uid+'\\')">Enviar</button>'}
 async function gr(uid) {
-    const c = prompt('Moedas?', '0'), g = prompt('Diamantes?', '0'), s = prompt('Skins (ex: 0.5, 1.5) ou vazio', '');
-    if (c === null) return;
-    await api({ op: 'grant', uid, coins: +c, gems: +g, skins: s ? s.split(',').map(x => x.trim()) : [] });
-    alert('Presente enviado. O jogador recebe ao abrir o jogo.');
+  const c = prompt('Moedas?', '0');
+  if (c === null) return;
+
+  const g = prompt('Diamantes?', '0');
+  if (g === null) return;
+
+  const s = prompt('Skins (ex: 0.5, 1.5) ou vazio', '');
+  if (s === null) return;
+
+  await api({
+    op: 'grant',
+    uid,
+    coins: Number(c) || 0,
+    gems: Number(g) || 0,
+    skins: s.trim() ? s.split(',').map(x => x.trim()) : []
+  });
+
+  alert('Presente enviado. O jogador recebe ao abrir o jogo.');
 }
 
-async function banirJogador(uid) {
-    if (!confirm("Tens a certeza que queres banir este jogador?")) return;
-    await api({ op: 'banir', uid });
-    alert('Jogador banido com sucesso.');
-}
 
 http.createServer((req,res)=>{const u=new URL(req.url,'http://x');
  if(req.method=='OPTIONS'){res.writeHead(204,cors);return res.end()}
