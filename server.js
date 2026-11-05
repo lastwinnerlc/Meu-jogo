@@ -5,19 +5,17 @@ const PORT=process.env.PORT||3000,ADMIN=process.env.ADMIN_KEY||'',DATA=process.e
 let db={},toks={},acct={},bans={},fails={};
 try{const j=JSON.parse(fs.readFileSync(DATA,'utf8'));db=j.db||{};toks=j.toks||{};acct=j.acct||{};bans=j.bans||{}}catch(e){}
 let dirty=false;
-setInterval// Função para atualizar o perfil do jogador e marcar para salvar no arquivo
+setInterval(()=>{if(dirty){dirty=false;fs.writeFile(DATA, JSON.stringify({db, toks, acct, bans}),()=>{})}},3000);
+
 function atualizarPerfilJogador(id, novosDados) {
   if (acct && acct[id]) {
-    // Atualiza apenas os campos enviados (ex: nivel, moedas, etc.)
     acct[id] = { ...acct[id], ...novosDados };
-    
-    // Ativa a flag dirty para o temporizador salvar no data.json automaticamente
-    dirty = true; 
+    dirty = true;
     return true;
   }
   return false;
 }
-(()=>{if(dirty){dirty=false;fs.writeFile(DATA,JSON.stringify({db,toks,acct,bans}),()=>{})}},3000);
+
 const conns=new Map(),pres=new Map(),dp=new Set();
 const sha=s=>crypto.createHash('sha256').update(s).digest('hex');
 const isAdm=k=>!!ADMIN&&typeof k=='string'&&k.length==ADMIN.length&&crypto.timingSafeEqual(Buffer.from(k),Buffer.from(ADMIN));
