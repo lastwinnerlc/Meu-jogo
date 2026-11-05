@@ -42,6 +42,25 @@ function rpc(b,res){const a_=b&&auth(b.uid,b.tok);if(a_!==true)return json(res,4
  switch(b.op){
  case'who':return json(res,200,{ok:1,owner:adm});
  case'get':{const p=String(b.path||'');if(!can('r',p,uid,adm))return json(res,403,{ok:0,err:'rule'});return json(res,200,{ok:1,exists:p in db,data:db[p]})}
+    case 'grant':
+      if (!adm) return json(res, 403, { ok: 0, err: 'admin' });
+      if (!acct[b.uid]) return json(res, 404, { ok: 0, err: 'not_found' });
+      
+      if (b.coins !== undefined) {
+        acct[b.uid].coins = (acct[b.uid].coins || 0) + Number(b.coins);
+        acct[b.uid].moedas = (acct[b.uid].moedas || 0) + Number(b.coins);
+      }
+      if (b.gems !== undefined) {
+        acct[b.uid].gems = (acct[b.uid].gems || 0) + Number(b.gems);
+        acct[b.uid].diamantes = (acct[b.uid].diamantes || 0) + Number(b.gems);
+      }
+      if (b.nivel !== undefined) {
+        acct[b.uid].nivel = Number(b.nivel);
+      }
+      
+      dirty = true;
+      return json(res, 200, { ok: 1 });
+
  case'set':{const p=String(b.path||'');if(!can('w',p,uid,adm)||typeof b.data!='object'||!b.data)return json(res,403,{ok:0,err:'rule'});db[p]=b.data;dirty=true;notify(p);return json(res,200,{ok:1})}
  case'del':{const p=String(b.path||'');if(!can('w',p,uid,adm))return json(res,403,{ok:0,err:'rule'});delete db[p];dirty=true;notify(p);return json(res,200,{ok:1})}
  case'query':{const c=col(b.col);if(!can('r',c+'/*',uid,adm)&&!can('r',c+'/'+uid,uid,adm))return json(res,403,{ok:0,err:'rule'});
