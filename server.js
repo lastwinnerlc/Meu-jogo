@@ -100,16 +100,20 @@ function admin(b,res,key){if(!isAdm(key)||!b)return json(res,403,{ok:0});
     // Marca como banido
     bans[u]=1;
     
-    // Apaga permanentemente todos os dados do jogador da base de dados e contas
+    // Apaga permanentemente todos os dados da base de dados e contas
     delete db['grants/'+u];
     delete db['mods/'+u];
     delete acct[u];
     
-    // Fecha a conexão ativa do jogador, se ele estiver online
-    for(const c of conns.values()){
+    // Fecha a conexão ativa e remove das conexões/presença imediatamente
+    for(const [id, c] of conns.entries()){
       if(c.uid==u){
         try{c.res.end()}catch(e){}
+        conns.delete(id);
       }
+    }
+    if(typeof pres !== 'undefined' && pres.has(u)){
+      pres.delete(u);
     }
   } else {
     // Se for para remover o ban
@@ -118,6 +122,7 @@ function admin(b,res,key){if(!isAdm(key)||!b)return json(res,403,{ok:0});
   dirty=true;
   return json(res,200,{ok:1});
 }
+
 
  case'grant':{
   console.log("DADOS RECEBIDOS:", b);
