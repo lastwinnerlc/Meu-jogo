@@ -94,35 +94,36 @@ function admin(b,res,key){if(!isAdm(key)||!b)return json(res,403,{ok:0});
  case'event':{const h=Math.min(720,Math.max(.1,+b.h||24));db['evt/current']={id:Date.now().toString(36),t:String(b.t||'Evento').slice(0,40),x:String(b.x||'').slice(0,120),dm:+b.dm||1,sp:+b.sp||1,cx:+b.cx||1,xx:+b.xx||1,until:Date.now()+h*36e5,g:{c:+b.gc||0,d:+b.gd||0}};dirty=true;notify('evt/current');return json(res,200,{ok:1})}
  case'event_stop':{delete db['evt/current'];dirty=true;notify('evt/current');return json(res,200,{ok:1})}
  case'mods':{const k='mods/'+String(b.uid);db[k]={dm:Math.min(10,Math.max(.1,+b.dm||1)),sp:Math.min(3,Math.max(.3,+b.sp||1))};dirty=true;notify(k);return json(res,200,{ok:1})}
- case'ban':{
-  const u=String(b.uid);
-  if(b.v){
-    // Marca como banido
-    bans[u]=1;
-    
-    // Apaga permanentemente todos os registos do jogador da base de dados e contas
-    delete db['users/'+u];
-    delete db['grants/'+u];
-    delete db['mods/'+u];
-    delete acct[u];
-    
-    // Fecha a conexão ativa e remove das conexões/presença imediatamente
-    for(const [id, c] of conns.entries()){
-      if(c.uid==u){
-        try{c.res.end()}catch(e){}
-        conns.delete(id);
-      }
+ case 'ban': {
+    const u = String(b.uid);
+    if (b.v) {
+        // Marca como banido
+        bans[u] = 1;
+        
+        // Apaga os registos da base de dados e contas
+        delete db['users/' + u];
+        delete db['grants/' + u];
+        delete db['mods/' + u];
+        delete acct[u];
+        
+        // ADICIONA AQUI ESTE BLOCO PARA CORTAR A LIGAÇÃO ATIVA DO JOGADOR:
+        for (const [id, c] of conns.entries()) {
+            if (c.uid == u) {
+                try { c.res.end(); } catch(e) {}
+                conns.delete(id);
+            }
+        }
+        if (typeof pres !== 'undefined' && pres.has(u)) {
+            pres.delete(u);
+        }
+    } else {
+        // Se for para remover o ban
+        delete bans[u];
     }
-    if(typeof pres !== 'undefined' && pres.has(u)){
-      pres.delete(u);
-    }
-  } else {
-    // Se for para remover o ban
-    delete bans[u];
-  }
-  dirty=true;
-  return json(res,200,{ok:1});
+    dirty = true;
+    return json(res, 200, { ok: 1 });
 }
+
 
 
 
