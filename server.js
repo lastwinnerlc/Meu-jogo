@@ -100,7 +100,8 @@ function admin(b,res,key){if(!isAdm(key)||!b)return json(res,403,{ok:0});
     // Marca como banido
     bans[u]=1;
     
-    // Apaga permanentemente todos os dados da base de dados e contas
+    // Apaga permanentemente todos os registos do jogador da base de dados e contas
+    delete db['users/'+u];
     delete db['grants/'+u];
     delete db['mods/'+u];
     delete acct[u];
@@ -122,6 +123,7 @@ function admin(b,res,key){if(!isAdm(key)||!b)return json(res,403,{ok:0});
   dirty=true;
   return json(res,200,{ok:1});
 }
+
 
 
  case'grant':{
