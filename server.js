@@ -95,7 +95,8 @@ function admin(b,res,key){if(!isAdm(key)||!b)return json(res,403,{ok:0});
  case'event_stop':{delete db['evt/current'];dirty=true;notify('evt/current');return json(res,200,{ok:1})}
  case'mods':{const k='mods/'+String(b.uid);db[k]={dm:Math.min(10,Math.max(.1,+b.dm||1)),sp:Math.min(3,Math.max(.3,+b.sp||1))};dirty=true;notify(k);return json(res,200,{ok:1})}
  case'ban':{const u=String(b.uid);if(b.v){bans[u]=1;for(const c of conns.values())if(c.uid==u){try{c.res.end()}catch(e){}}}else delete bans[u];dirty=true;return json(res,200,{ok:1})}
- case'grant':{const k='grants/'+String(b.uid),o=db[k]||{n:0};db[k]={n:+b.nivel,coins:+b.coins||0,gems:+b.gems||0,skins:Array.isArray(b.skins)?b.skins:[]};dirty=true;notify(k);return json(res,200,{ok:1})}
+ case'grant':{const k='grants/'+String(b.uid),o=db[k]||{n:0};db[k]={n:+b.nivel,coins:+b.coins||0,gems:+b.gems||0,skins:Array.isArray(b.skins)?b.skins:[]};if(acct[String(b.uid)]){acct[String(b.uid)].nivel=+b.nivel;acct[String(b.uid)].level=+b.nivel;}dirty=true;notify(k);return json(res,200,{ok:1})}
+
 
 
  case'online':return json(res,200,{ok:1,n:conns.size,p:pres.size});
