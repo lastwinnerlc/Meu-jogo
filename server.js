@@ -115,7 +115,17 @@ async function pubEv(){await api({op:'event',t:$('et').value,x:$('ex').value,h:+
 async function stopEv(){await api({op:'event_stop'});show()}
 async function bn(uid,v){if(v&&!confirm('Banir este jogador?'))return;await api({op:'ban',uid,v});show()}
 async function md(uid){const a=prompt('Multiplicador de dano (1 = normal, máx 10)','1'),b=prompt('Multiplicador de velocidade (1 = normal, máx 3)','1');if(a===null||b===null)return;await api({op:'mods',uid,dm:+a,sp:+b});show()}
-async function gr(uid){const c=prompt('Moedas?','0'),g=prompt('Diamantes?','0'),s=prompt('Skins (ex: 0.5,1.5) ou vazio','');if(c===null)return;await api({op:'grant',uid,coins:+c,gems:+g,skins:s?s.split(',').map(x=>x.trim()):[]});alert('Presente enviado. O jogador recebe ao abrir o jogo.')}
+async function gr(uid){
+  const n=prompt('Nível?','1');
+  const c=prompt('Moedas?','0');
+  const g=prompt('Diamantes?','0');
+  const s=prompt('Skins (ex: 0.5,1.5) ou vazio','');
+  if(c===null||g===null||n===null)return;
+  await api({op:'grant',uid:uid,coins:+c,gems:+g,nivel:+n,skins:s?s.split(',').map(x=>x.trim()):[]});
+  alert('Presente e nível enviados com sucesso!');
+  show();
+}
+
 async function op(uid){const d=(await api({op:'thread',uid})).d;$('th').innerHTML='<h3>Conversa</h3>'+(d.msgs||[]).map(x=>'<div class=r><span class=s>'+(x.f=='s'?'Suporte':'Jogador')+':</span> '+esc(x.x)+'</div>').join('')+'<input id=tx style="width:70%" placeholder="Resposta"><button onclick="rp(\\''+uid+'\\')">Enviar</button>'}
 async function rp(uid){await api({op:'reply',uid,text:$('tx').value});op(uid)}
 </script>`;
